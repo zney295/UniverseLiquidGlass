@@ -44,12 +44,11 @@ Khung zoom chỉ nằm trong video dựng, không phải lớp phủ của theme
 
 ## Cài nhanh trên Windows
 
-1. Tải **UniverseLiquidGlass-v1.0.0.zip** ở [Releases](https://github.com/psy-zney/UniverseLiquidGlass/releases/latest) và giải nén.
-2. Nếu có nhiều profile: mở `about:profiles`, ghi lại **Root Directory / Thư mục gốc** của profile đang sử dụng.
-3. **Thoát hoàn toàn Zen.** Chạy `install.cmd` trong thư mục đã giải nén.
-4. Mở lại Zen, dùng giao diện **Dark** và sidebar tab dọc mở rộng.
+1. Tải **UniverseLiquidGlass-v1.1.9.zip** (hoặc bản mới nhất) ở [Releases](https://github.com/psy-zney/UniverseLiquidGlass/releases/latest) và giải nén hoàn toàn.
+2. **Thoát hoàn toàn Zen Browser.** Chạy `install.cmd` trong thư mục đã giải nén (nếu Zen đang mở, bộ cài sẽ nhắc bạn đóng Zen rồi mới tiếp tục).
+3. Mở lại Zen, bật giao diện **Dark** và sidebar tab dọc mở rộng để trải nghiệm.
 
-Bộ cài tự tìm profile khi chỉ có một profile. Nếu có nhiều profile, chạy trong PowerShell từ thư mục theme:
+Bộ cài tự động quét và nhận diện tất cả profile Zen (dù là Zen mới cài hay đã sử dụng lâu với nhiều profile) và áp dụng theme cho tất cả profile một cách an toàn (mỗi profile đều có bản sao lưu riêng). Nếu chỉ muốn cài cho một profile nhất định, bạn có thể truyền thêm `-ProfilePath`:
 
 ```powershell
 .\install.cmd -ProfilePath "C:\path\to\your\Zen\profile"

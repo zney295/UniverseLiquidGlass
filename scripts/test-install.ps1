@@ -39,5 +39,45 @@ try {
     try { & (Join-Path $repo 'install.ps1') -ProfilePath $fixture } catch { $rejected=$_.Exception.Message.Contains('running or locked') }
     if (-not $rejected) { throw 'Locked profile was not rejected' }
 } finally { $lock.Dispose() }
-Write-Host 'PASS: WhatIf, repeated install, CSS import order, backups, local wallpaper, uninstall preservation, profile lock.'
+
+# Test multi-profile scanning for both new installations and existing profiles
+$origAppData = $env:APPDATA
+$testApp = Join-Path ([IO.Path]::GetTempPath()) ('zen-test-app-' + [Guid]::NewGuid().ToString('N'))
+$testZen = Join-Path $testApp 'zen'
+$p1 = Join-Path $testZen 'Profiles\profile-one'
+$p2 = Join-Path $testZen 'Profiles\profile-two'
+$p3 = Join-Path $testZen 'Profiles\profile-three-older'
+New-Item -ItemType Directory -Path $p1 -Force | Out-Null
+New-Item -ItemType Directory -Path $p2 -Force | Out-Null
+New-Item -ItemType Directory -Path $p3 -Force | Out-Null
+$iniContent = "[Install7C0FFE87499266CD]`r`nDefault=Profiles/profile-two`r`nLocked=1`r`n[Profile0]`r`nName=Profile One`r`nIsRelative=1`r`nPath=Profiles/profile-one`r`n[Profile1]`r`nName=Profile Two`r`nIsRelative=1`r`nPath=Profiles/profile-two`r`nDefault=1`r`n"
+[IO.File]::WriteAllText((Join-Path $testZen 'profiles.ini'), $iniContent)
+$env:APPDATA = $testApp
+try {
+    . (Join-Path $PSScriptRoot 'Profile.ps1')
+    $targets = Get-ZenTargetProfiles
+    if ($targets.Count -lt 3) { throw 'Did not scan all profiles from profiles.ini and disk Profiles folder' }
+    if ($targets[0] -ne (Get-Item -LiteralPath $p2).FullName) { throw 'Active install profile was not prioritized first' }
+
+    # Run parameterless install across all scanned profiles
+    & (Join-Path $repo 'install.ps1')
+    foreach ($p in @($p1, $p2, $p3)) {
+        if (-not (Test-Path -LiteralPath (Join-Path $p 'chrome\UniverseLiquidGlass\install-state.json'))) {
+            throw ('Theme was not applied to scanned profile: ' + $p)
+        }
+    }
+
+    # Run parameterless uninstall across all scanned profiles
+    & (Join-Path $repo 'uninstall.ps1')
+    foreach ($p in @($p1, $p2, $p3)) {
+        if (Test-Path -LiteralPath (Join-Path $p 'chrome\UniverseLiquidGlass')) {
+            throw ('Theme was not removed from scanned profile: ' + $p)
+        }
+    }
+} finally {
+    $env:APPDATA = $origAppData
+    Remove-Item -LiteralPath $testApp -Recurse -Force
+}
+
+Write-Host 'PASS: WhatIf, repeated install, CSS import order, backups, local wallpaper, uninstall preservation, profile lock, multi-profile scan and apply.'
 Write-Host ('Test profile retained for inspection: '+$fixture)

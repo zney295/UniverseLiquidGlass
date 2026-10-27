@@ -4,12 +4,11 @@
 
 ## Quick installation — Windows
 
-1. Download the latest **UniverseLiquidGlass ZIP** from [Releases](https://github.com/psy-zney/UniverseLiquidGlass/releases/latest) and extract it.
-2. If you have multiple Zen profiles, open `about:profiles` and note the intended profile's **Root Directory**.
-3. **Close Zen completely**, then run `install.cmd` from the extracted folder.
-4. Reopen Zen with the **Dark** appearance and expanded vertical tabs.
+1. Download the latest **UniverseLiquidGlass ZIP** from [Releases](https://github.com/psy-zney/UniverseLiquidGlass/releases/latest) and extract it completely.
+2. **Close Zen completely**, then run `install.cmd` from the extracted folder (if Zen is still running, the installer will alert you to close it).
+3. Reopen Zen with the **Dark** appearance and expanded vertical tabs.
 
-The installer automatically selects a profile only when there is exactly one. For a specific profile, run this from the extracted folder:
+The installer automatically scans all Zen profiles (whether a brand new installation or an existing setup with multiple profiles) and safely applies the theme across all detected profiles, creating a dedicated timestamped backup for each. To target only a specific profile, specify `-ProfilePath`:
 
 ```powershell
 .\install.cmd -ProfilePath "C:\path\to\your\Zen\profile"

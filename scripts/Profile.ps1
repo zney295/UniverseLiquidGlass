@@ -1,26 +1,90 @@
 Set-StrictMode -Version Latest
 
-function Resolve-ZenProfile {
+function Get-ZenTargetProfiles {
     param([string]$ProfilePath)
     if ($ProfilePath) {
         $item = Get-Item -LiteralPath $ProfilePath -ErrorAction Stop
         if (-not $item.PSIsContainer) { throw 'ProfilePath must be a profile folder.' }
-        return $item.FullName
+        return @($item.FullName)
     }
+
+    $discovered = [System.Collections.Generic.List[string]]::new()
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    $addCandidate = {
+        param([string]$dir)
+        if ([string]::IsNullOrWhiteSpace($dir)) { return }
+        if (Test-Path -LiteralPath $dir -PathType Container) {
+            $full = (Get-Item -LiteralPath $dir).FullName
+            if ($seen.Add($full)) {
+                $discovered.Add($full)
+            }
+        }
+    }
+
+    # 1. Parse profiles.ini if present (standard Mozilla/Zen config)
     $config = Join-Path $env:APPDATA 'zen\profiles.ini'
-    if (-not (Test-Path -LiteralPath $config)) { throw 'Zen profiles.ini not found. Pass -ProfilePath from about:profiles.' }
-    $profiles = @(); $section = $null
-    foreach ($line in [IO.File]::ReadAllLines($config)) {
-        if ($line -match '^\[([^\]]+)\]') {
-            if ($section -and $section.ContainsKey('Path')) { $profiles += ,$section }
-            $section = if ($Matches[1] -match '^Profile\d+$') { @{} } else { $null }
-        } elseif ($null -ne $section -and $line -match '^([^=]+)=(.*)$') { $section[$Matches[1]] = $Matches[2] }
+    if (Test-Path -LiteralPath $config) {
+        $sections = @{}
+        $currentSection = $null
+        foreach ($line in [IO.File]::ReadAllLines($config)) {
+            $trimmed = $line.Trim()
+            if ($trimmed -match '^\[([^\]]+)\]$') {
+                $currentSection = $Matches[1]
+                $sections[$currentSection] = @{}
+            } elseif ($currentSection -and $trimmed -match '^([^=]+)=(.*)$') {
+                $sections[$currentSection][$Matches[1].Trim()] = $Matches[2].Trim()
+            }
+        }
+
+        # 1a. Per-installation default profile (modern release/default channel)
+        foreach ($k in $sections.Keys) {
+            if ($k -match '^Install' -and $sections[$k].ContainsKey('Default')) {
+                $rel = $sections[$k]['Default']
+                $path = Join-Path (Split-Path $config) $rel
+                & $addCandidate $path
+            }
+        }
+
+        # 1b. Profiles explicitly flagged Default=1
+        foreach ($k in $sections.Keys) {
+            if ($k -match '^Profile\d+$' -and $sections[$k].ContainsKey('Default') -and $sections[$k]['Default'] -eq '1' -and $sections[$k].ContainsKey('Path')) {
+                $p = $sections[$k]
+                $path = if ($p['IsRelative'] -eq '1') { Join-Path (Split-Path $config) $p['Path'] } else { $p['Path'] }
+                & $addCandidate $path
+            }
+        }
+
+        # 1c. All other profiles listed in profiles.ini
+        foreach ($k in $sections.Keys) {
+            if ($k -match '^Profile\d+$' -and $sections[$k].ContainsKey('Path')) {
+                $p = $sections[$k]
+                $path = if ($p['IsRelative'] -eq '1') { Join-Path (Split-Path $config) $p['Path'] } else { $p['Path'] }
+                & $addCandidate $path
+            }
+        }
     }
-    if ($section -and $section.ContainsKey('Path')) { $profiles += ,$section }
-    if ($profiles.Count -ne 1) { throw 'Multiple Zen profiles found. Pass -ProfilePath with the intended Root Directory from about:profiles.' }
-    $zenProfile = $profiles[0]
-    $candidate = if ($zenProfile['IsRelative'] -eq '1') { Join-Path (Split-Path $config) $zenProfile['Path'] } else { $zenProfile['Path'] }
-    return (Get-Item -LiteralPath $candidate -ErrorAction Stop).FullName
+
+    # 2. Also scan disk directory %APPDATA%\zen\Profiles directly for any older or manual profiles
+    $profilesDir = Join-Path $env:APPDATA 'zen\Profiles'
+    if (Test-Path -LiteralPath $profilesDir -PathType Container) {
+        $folders = Get-ChildItem -LiteralPath $profilesDir -Directory | Sort-Object LastWriteTime -Descending
+        foreach ($f in $folders) {
+            & $addCandidate $f.FullName
+        }
+    }
+
+    if ($discovered.Count -eq 0) {
+        throw 'No Zen profiles found. If Zen Browser is newly installed, please launch it once so it initializes a profile, then run install again.'
+    }
+
+    return $discovered.ToArray()
+}
+
+function Resolve-ZenProfile {
+    param([string]$ProfilePath)
+    $profiles = Get-ZenTargetProfiles $ProfilePath
+    return $profiles[0]
 }
 
 function Assert-ProfileClosed {
