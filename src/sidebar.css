@@ -20,6 +20,7 @@
   border: 0 !important;
   box-shadow: none !important;
   filter: none !important;
+  transition: opacity 0.15s ease !important;
 }
 @property --cosmos-spark-a { syntax: "<number>"; inherits: false; initial-value: .25; }
 @property --cosmos-spark-b { syntax: "<number>"; inherits: false; initial-value: .35; }

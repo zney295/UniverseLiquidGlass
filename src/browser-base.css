@@ -481,8 +481,10 @@ __SIDEBAR__
   opacity: 0.42 !important;
 }
 
-#navigator-toolbox toolbarbutton:not([disabled="true"]),
-#zen-appcontent-navbar-container toolbarbutton:not([disabled="true"]) {
+:root:not([zen-compact-mode="true"]) #navigator-toolbox toolbarbutton:not([disabled="true"]),
+:root:not([zen-compact-mode="true"]) #zen-appcontent-navbar-container toolbarbutton:not([disabled="true"]),
+:root[zen-compact-mode="true"] #navigator-toolbox:is([zen-has-hover],[zen-user-show],[zen-has-empty-tab],[flash-popup],[has-popup-menu],[movingtab],[zen-compact-mode-active]) toolbarbutton:not([disabled="true"]),
+:root[zen-compact-mode="true"] #zen-appcontent-navbar-wrapper:is([zen-has-hover],[has-popup-menu],[zen-compact-mode-active]) #zen-appcontent-navbar-container toolbarbutton:not([disabled="true"]) {
   opacity: 1 !important;
 }
 

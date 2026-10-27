@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.10 — 2026-10-27
+
+- Fix Compact Mode auto-hide: suppress sidebar background, starfield, pseudo-elements, border and shadow when retracted.
+- Fix collapsed navbar borders, shadows, and button opacity in Compact Mode.
+- Add smooth opacity transitions when sidebar auto-hides and reveals on hover.
+
 ## 1.1.9 — 2026-10-24
 
 - Fix native webpage select labels that were forced white by the generic dark-menu rule.

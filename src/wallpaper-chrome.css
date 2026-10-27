@@ -62,3 +62,33 @@
   background-attachment: scroll !important;
   border-inline-end: 1px solid #ffffff14 !important;
 }
+
+/* Compact mode auto-hide support for tab sidebar and toolbar */
+:root[zen-compact-mode='true'] #navigator-toolbox:not([animate='true']):not(:is([zen-has-hover],[zen-user-show],[zen-has-empty-tab],[flash-popup],[has-popup-menu],[movingtab],[zen-compact-mode-active])) {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-inline-end-color: transparent !important;
+  box-shadow: none !important;
+}
+
+:root[zen-compact-mode='true'] #navigator-toolbox:not([animate='true']):not(:is([zen-has-hover],[zen-user-show],[zen-has-empty-tab],[flash-popup],[has-popup-menu],[movingtab],[zen-compact-mode-active]))::before,
+:root[zen-compact-mode='true'] #navigator-toolbox:not([animate='true']):not(:is([zen-has-hover],[zen-user-show],[zen-has-empty-tab],[flash-popup],[has-popup-menu],[movingtab],[zen-compact-mode-active]))::after {
+  opacity: 0 !important;
+  display: none !important;
+}
+
+:root[zen-compact-mode='true'] #zen-appcontent-navbar-wrapper:not(:is([zen-has-hover],[has-popup-menu],[zen-compact-mode-active])) {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
+}
+
+:root[zen-compact-mode='true'] #zen-appcontent-navbar-wrapper:not(:is([zen-has-hover],[has-popup-menu],[zen-compact-mode-active])) #zen-appcontent-navbar-container {
+  opacity: 0 !important;
+}
+
+:root[zen-compact-mode='true'] #zen-appcontent-navbar-wrapper:not(:is([zen-has-hover],[has-popup-menu],[zen-compact-mode-active])) toolbarbutton {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

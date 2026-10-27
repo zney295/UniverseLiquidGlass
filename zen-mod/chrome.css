@@ -105,6 +105,7 @@
   border: 0 !important;
   box-shadow: none !important;
   filter: none !important;
+  transition: opacity 0.15s ease !important;
 }
 @property --cosmos-spark-a { syntax: "<number>"; inherits: false; initial-value: .25; }
 @property --cosmos-spark-b { syntax: "<number>"; inherits: false; initial-value: .35; }
@@ -591,8 +592,10 @@
   opacity: 0.42 !important;
 }
 
-#navigator-toolbox toolbarbutton:not([disabled="true"]),
-#zen-appcontent-navbar-container toolbarbutton:not([disabled="true"]) {
+:root:not([zen-compact-mode="true"]) #navigator-toolbox toolbarbutton:not([disabled="true"]),
+:root:not([zen-compact-mode="true"]) #zen-appcontent-navbar-container toolbarbutton:not([disabled="true"]),
+:root[zen-compact-mode="true"] #navigator-toolbox:is([zen-has-hover],[zen-user-show],[zen-has-empty-tab],[flash-popup],[has-popup-menu],[movingtab],[zen-compact-mode-active]) toolbarbutton:not([disabled="true"]),
+:root[zen-compact-mode="true"] #zen-appcontent-navbar-wrapper:is([zen-has-hover],[has-popup-menu],[zen-compact-mode-active]) #zen-appcontent-navbar-container toolbarbutton:not([disabled="true"]) {
   opacity: 1 !important;
 }
 
@@ -1448,6 +1451,36 @@ zen-library-downloads-section .zen-library-row:hover .zen-library-download-url {
   background-size: cover !important;
   background-attachment: scroll !important;
   border-inline-end: 1px solid #ffffff14 !important;
+}
+
+/* Compact mode auto-hide support for tab sidebar and toolbar */
+:root[zen-compact-mode='true'] #navigator-toolbox:not([animate='true']):not(:is([zen-has-hover],[zen-user-show],[zen-has-empty-tab],[flash-popup],[has-popup-menu],[movingtab],[zen-compact-mode-active])) {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-inline-end-color: transparent !important;
+  box-shadow: none !important;
+}
+
+:root[zen-compact-mode='true'] #navigator-toolbox:not([animate='true']):not(:is([zen-has-hover],[zen-user-show],[zen-has-empty-tab],[flash-popup],[has-popup-menu],[movingtab],[zen-compact-mode-active]))::before,
+:root[zen-compact-mode='true'] #navigator-toolbox:not([animate='true']):not(:is([zen-has-hover],[zen-user-show],[zen-has-empty-tab],[flash-popup],[has-popup-menu],[movingtab],[zen-compact-mode-active]))::after {
+  opacity: 0 !important;
+  display: none !important;
+}
+
+:root[zen-compact-mode='true'] #zen-appcontent-navbar-wrapper:not(:is([zen-has-hover],[has-popup-menu],[zen-compact-mode-active])) {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
+}
+
+:root[zen-compact-mode='true'] #zen-appcontent-navbar-wrapper:not(:is([zen-has-hover],[has-popup-menu],[zen-compact-mode-active])) #zen-appcontent-navbar-container {
+  opacity: 0 !important;
+}
+
+:root[zen-compact-mode='true'] #zen-appcontent-navbar-wrapper:not(:is([zen-has-hover],[has-popup-menu],[zen-compact-mode-active])) toolbarbutton {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 /* Native address/search bar, including Zen's floating search palette. */
 #urlbar {
