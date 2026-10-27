@@ -5,3 +5,5 @@ dist/
 videos/demo/renders/
 *.log
 .DS_Store
+scratch.*
+
